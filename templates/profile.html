@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Sentiment Analysis{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="fas fa-user"></i> User Profile
+    </h2>
+    
+    <div class="row">
+        <!-- Account Information -->
+        <div class="col-md-8">
+            <div class="card shadow mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card"></i> Account Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('profile') }}">
+                        <input type="hidden" name="action" value="update_info">
+                        
+                        <div class="mb-3">
+                            <label for="fullname" class="form-label">Full Name</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="fullname" 
+                                   name="fullname" 
+                                   value="{{ user.fullname }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="username" 
+                                   value="{{ user.username }}" 
+                                   disabled>
+                            <small class="text-muted">Username cannot be changed</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{ user.email }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Registration Date</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   value="{{ user.registration_date.strftime('%Y-%m-%d %H:%M:%S') }}" 
+                                   disabled>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Last Login</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   value="{% if user.last_login %}{{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}{% else %}Never{% endif %}" 
+                                   disabled>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Information
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Change Password -->
+            <div class="card shadow mb-3">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-key"></i> Change Password
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('profile') }}">
+                        <input type="hidden" name="action" value="change_password">
+                        
+                        <div class="mb-3">
+                            <label for="old_password" class="form-label">Old Password</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="old_password" 
+                                   name="old_password" 
+                                   required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="new_password" 
+                                   name="new_password" 
+                                   minlength="6"
+                                   required>
+                            <small class="text-muted">At least 6 characters</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirm_new_password" class="form-label">Confirm New Password</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="confirm_new_password" 
+                                   name="confirm_new_password" 
+                                   required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-key"></i> Change Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Statistics -->
+        <div class="col-md-4">
+            <div class="card shadow mb-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar"></i> My Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h2 class="mb-0">{{ stats.total_analyses }}</h2>
+                        <small class="text-muted">Total Analyses</small>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>
+                                <i class="fas fa-smile text-success"></i> Positive
+                            </span>
+                            <strong>{{ stats.positive_count }}</strong>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            {% set total = stats.total_analyses if stats.total_analyses > 0 else 1 %}
+                            <div class="progress-bar bg-success" 
+                                 style="width: {{ (stats.positive_count / total * 100) }}%">
+                                {{ (stats.positive_count / total * 100)|int }}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>
+                                <i class="fas fa-frown text-danger"></i> Negative
+                            </span>
+                            <strong>{{ stats.negative_count }}</strong>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-danger" 
+                                 style="width: {{ (stats.negative_count / total * 100) }}%">
+                                {{ (stats.negative_count / total * 100)|int }}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>
+                                <i class="fas fa-meh text-secondary"></i> Neutral
+                            </span>
+                            <strong>{{ stats.neutral_count }}</strong>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-secondary" 
+                                 style="width: {{ (stats.neutral_count / total * 100) }}%">
+                                {{ (stats.neutral_count / total * 100)|int }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt"></i> Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> New Analysis
+                        </a>
+                        <a href="{{ url_for('history') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-history"></i> View History
+                        </a>
+                        <a href="{{ url_for('export_csv', filter='All') }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-download"></i> Export All Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
